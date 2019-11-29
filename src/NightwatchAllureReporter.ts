@@ -1,5 +1,5 @@
 import * as Models from "./model";
-import { NightwatchAssertion, NightwatchStep, NightwatchTest } from "./model";
+import { NightwatchStep, NightwatchTest } from "./model";
 import { AllureRuntime, IAllureConfig } from "allure-js-commons";
 import { AllureReporter } from "./AllureReporter";
 import { NightwatchAllureInterface } from "./NightwatchAllureInterface";
