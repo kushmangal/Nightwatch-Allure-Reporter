@@ -1,16 +1,11 @@
-import {
-  AllureGroup,
-  AllureRuntime,
-  AllureStep,
-  AllureTest,
-  ContentType,
-  Stage,
-  Status,
-  StatusDetails
-} from "allure-js-commons";
 import { createHash } from "crypto";
 import { NightwatchAllureInterface } from "./NightwatchAllureInterface";
 import * as Models from "./model";
+import { ContentType, Stage, Status, StatusDetails } from "./allure/model";
+import { AllureTest } from "./allure/AllureTest";
+import { AllureStep } from "./allure/ExecutableItemWrapper";
+import { AllureGroup } from "./allure/AllureGroup";
+import { AllureRuntime } from "./allure/AllureRuntime";
 
 export class AllureReporter {
   private suites: AllureGroup[] = [];
@@ -66,8 +61,8 @@ export class AllureReporter {
     if (this.currentSuite === null) {
       throw new Error("No active suite");
     }
-
     this.currentTest = this.currentSuite.startTest(test.testName);
+    this.currentTest.setEnd(test.timeMs);
     this.currentTest.fullName = test.testName;
     this.currentTest.historyId = createHash("md5")
       .update(test.testName)

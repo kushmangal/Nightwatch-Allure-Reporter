@@ -1,6 +1,7 @@
-import { AllureStep, StepInterface } from "allure-js-commons";
+import { ContentType, Status } from "./allure/model";
 import { AllureReporter } from "./AllureReporter";
-import { ContentType, Status, StatusDetails } from "allure-js-commons/dist";
+import { StepInterface } from "./allure/Allure";
+import { AllureStep } from "./allure/ExecutableItemWrapper";
 
 export class StepWrapper {
   constructor(private readonly reporter: AllureReporter, private readonly step: AllureStep) {
@@ -22,7 +23,7 @@ export class StepWrapper {
 
   public setDetailsTrace(detailsTrace: string) {
     this.step.detailsTrace = detailsTrace;
-    this.step.statusDetails = {message:"Error",trace:detailsTrace};
+    this.step.statusDetails = { message: "Error", trace: detailsTrace };
   }
 
   public setDetailsMessage(detailsMessage: string) {
@@ -34,9 +35,9 @@ export class StepWrapper {
     this.step.addAttachment(name, type, file);
   }
 
-  public endStep(): void {
+  public endStep(timeMs: number = 0): void {
     this.reporter.popStep();
-    this.step.endStep();
+    this.step.endStep(timeMs);
   }
 
   public run<T>(body: (step: StepInterface) => T): T {

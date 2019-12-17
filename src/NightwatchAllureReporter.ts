@@ -1,25 +1,35 @@
 import * as Models from "./model";
 import { NightwatchStep, NightwatchTest } from "./model";
-import { AllureRuntime, IAllureConfig } from "allure-js-commons";
 import { AllureReporter } from "./AllureReporter";
 import { NightwatchAllureInterface } from "./NightwatchAllureInterface";
-import { ContentType, Status } from "allure-js-commons/dist";
 import fs from "fs";
+import { IAllureConfig } from "./allure/AllureConfig";
+import { AllureRuntime } from "./allure/AllureRuntime";
+import { ContentType, Status } from "./allure/model";
 
 export let allure: NightwatchAllureInterface;
 
 export class NightwatchAllureReporter {
   private coreReporter: AllureReporter;
+  private sendData: boolean = false;
 
   constructor(opts: Models.NightwatchOptions) {
-    const allureConfig: IAllureConfig = { resultsDir: "allure-results", ...opts };
+    const allureConfig: IAllureConfig = { resultsDir: "allure-results" };
+    if (opts.sendData)
+      this.sendData = true;
     this.coreReporter = new AllureReporter(new AllureRuntime(allureConfig));
     allure = this.coreReporter.getInterface();
   }
 
   public write(results: Models.NightwatchResults, done: Function) {
-
+    let suiteStatus: string = Status.BROKEN;
+    let testCount: number = 0;
+    let passedCount: number = 0;
+    let failedCount: number = 0;
+    let skippedCount: number = 0;
+    let partialCount: number = 0;
     for (let currentModuleName in results.modules) {
+      testCount++;
       let currentModule = results.modules[currentModuleName];
       let currentTest: NightwatchTest = {
         failures: currentModule.failures,
@@ -32,8 +42,7 @@ export class NightwatchAllureReporter {
         testName: currentModuleName,
         testSteps: [],
         errorMessage: "",
-        startTimestamp: currentModule.timestamp,
-        endTimestamp: currentModule.timestamp,
+        timeMs: parseFloat(currentModule.time) * 1000,
         tags: {}
       };
 
@@ -104,7 +113,7 @@ export class NightwatchAllureReporter {
           //End Assertion
           assertion.endStep();
         }
-        step.endStep();
+        step.endStep(currentStep.timeMs);
       }
 
       for (let skippedStep in currentModule.skipped) {
@@ -116,21 +125,35 @@ export class NightwatchAllureReporter {
       if (currentModule.assertionsCount === currentModule.passedCount) {
         //Passed step
         this.coreReporter.setTestStatus(Status.PASSED);
+        passedCount++;
       } else if (currentModule.assertionsCount === currentModule.skippedCount) {
         //Skipped step
         this.coreReporter.setTestStatus(Status.SKIPPED);
+        skippedCount++;
       } else if (currentModule.assertionsCount === currentModule.failedCount) {
         //Failed step
         this.coreReporter.setTestStatus(Status.FAILED);
         this.coreReporter.setTestDetailsTrace(currentModule.errmessages.join(","));
+        failedCount++;
       } else {
         //Broken step
         this.coreReporter.setTestStatus(Status.BROKEN);
         this.coreReporter.setTestDetailsTrace(currentModule.errmessages.join(","));
+        partialCount++;
       }
       this.coreReporter.completeTest();
       this.coreReporter.endSuite();
     }
-    done();
+    if (testCount === passedCount)
+      suiteStatus = Status.PASSED;
+    else if (testCount === failedCount)
+      suiteStatus = Status.FAILED;
+    else if (testCount === skippedCount)
+      suiteStatus = Status.SKIPPED;
+    if (this.sendData)
+      done(suiteStatus, testCount, passedCount, failedCount, skippedCount, partialCount);
+    else
+      done();
   }
+
 }
