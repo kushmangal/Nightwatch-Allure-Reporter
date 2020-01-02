@@ -1,1 +1,22 @@
-nightwatch-allure
+#Nightwatch Allure Reporter
+This is a custom reporter for nightwatch, which uses allure reporting to generate reports.
+
+##Install Steps
+```npm install nightwatch-allure --save```
+
+##Usage Steps
+
+Add following code to globals file in nightwatch
+```
+const allureReporter = require('nightwatch-allure');
+const reporter = new allureReporter.NightwatchAllureReporter();
+module.exports = {
+  reporter: reporter.write
+};
+```
+
+That's it, this will create a allure-results folder in your root directory
+To serve these results use allure reporter cli, for that first you would need to download allure cli then use following command
+```
+allure generate ./allure-results --clean && allure open
+```

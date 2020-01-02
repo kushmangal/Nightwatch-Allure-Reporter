@@ -1,0 +1,1 @@
+export { NightwatchAllureReporter } from './NightwatchAllureReporter';
