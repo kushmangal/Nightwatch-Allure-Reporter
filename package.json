@@ -1,6 +1,6 @@
 {
   "name": "nightwatch-allure",
-  "version": "1.1.4",
+  "version": "1.1.6",
   "description": "Nightwatch allure reporter",
   "main": "lib/index.js",
   "scripts": {

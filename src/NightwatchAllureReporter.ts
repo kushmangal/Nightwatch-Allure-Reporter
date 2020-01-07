@@ -117,11 +117,11 @@ export class NightwatchAllureReporter {
         step.endStep();
       }
 
-      if (currentModule.assertionsCount === currentModule.passedCount) {
+      if (currentModule.assertionsCount!=0 && currentModule.assertionsCount === currentModule.passedCount) {
         //Passed step
         this.coreReporter.setTestStatus(Status.PASSED);
         passedCount++;
-      } else if (currentModule.assertionsCount === currentModule.skippedCount) {
+      } else if (currentModule.assertionsCount!=0 && currentModule.assertionsCount === currentModule.skippedCount) {
         //Skipped step
         this.coreReporter.setTestStatus(Status.SKIPPED);
         skippedCount++;
