@@ -64,6 +64,12 @@ export class AllureReporter {
     this.currentTest = this.currentSuite.startTest(test.testName);
     this.currentTest.setEnd(test.timeMs);
     this.currentTest.fullName = test.testName;
+    //Adding date and reportPrefix as tags
+    const currentDate=new Date();
+    this.currentTest.addLabel("time", currentDate+"");
+    if (test.reportPrefix) {
+        this.currentTest.addLabel("browser", test.reportPrefix);
+    }
     this.currentTest.historyId = createHash("md5")
       .update(test.testName)
       .digest("hex");

@@ -1,5 +1,7 @@
 export interface NightwatchOptions {
+  //To change results folder name for allure-results
   folder: string,
+  //To send a summary of data from test results
   sendData: boolean
 }
 
@@ -35,6 +37,7 @@ export interface NightwatchModule {
 }
 
 export interface NightwatchTest {
+  reportPrefix: string,
   failures: number,
   errors: number,
   skipped: number,

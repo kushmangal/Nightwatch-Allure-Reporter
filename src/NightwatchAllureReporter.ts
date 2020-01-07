@@ -11,10 +11,12 @@ export let allure: NightwatchAllureInterface;
 
 export class NightwatchAllureReporter {
   private coreReporter: AllureReporter;
-  private sendData: boolean = false;
+  private readonly sendData: boolean = false;
 
   constructor(opts: Models.NightwatchOptions) {
-    const allureConfig: IAllureConfig = { resultsDir: "allure-results" };
+    const folderName = opts.folder ? opts.folder : "allure-results";
+    const allureConfig: IAllureConfig = { resultsDir: folderName };
+    //Send Data param is to send a summary of results back as callback of reporter
     if (opts.sendData)
       this.sendData = true;
     this.coreReporter = new AllureReporter(new AllureRuntime(allureConfig));
@@ -32,6 +34,7 @@ export class NightwatchAllureReporter {
       testCount++;
       let currentModule = results.modules[currentModuleName];
       let currentTest: NightwatchTest = {
+        reportPrefix: currentModule.reportPrefix,
         failures: currentModule.failures,
         errors: currentModule.errors,
         skipped: currentModule.skipped.length,
@@ -58,14 +61,6 @@ export class NightwatchAllureReporter {
       //Starting test in the suite
       this.coreReporter.startCase(currentTest);
 
-      //TODO Check how to use this
-      // if (currentTest.tags.hasOwnProperty("testcaseId")) {
-      //     runtimeAllure.addLabel("testId", currentTest.tags["testcaseId"]);
-      // }
-      // if (currentTest.tags.hasOwnProperty("description")) {
-      //     runtimeAllure.description(currentTest.tags.description);
-      // }
-      //
 
       allure.attachment("Reported Result", JSON.stringify(currentModule), ContentType.JSON);
 
