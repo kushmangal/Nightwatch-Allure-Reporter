@@ -93,17 +93,17 @@ export class NightwatchAllureReporter {
           if (currentAssertion.failure) {
             assertion.setStatus(Status.FAILED);
             assertion.setDetailsTrace(currentAssertion.stackTrace);
-            if (currentAssertion.screenshots && currentAssertion.screenshots.length > 0) {
-              //Add Screenshots as attachments
-              for (let index in currentAssertion.screenshots) {
-                const file = currentAssertion.screenshots[index];
-                const data = fs.readFileSync(file);
-                allure.attachment("Screenshot", data, ContentType.PNG);
-              }
-            }
-            //TODO Add Screenshots
           } else {
             assertion.setStatus(Status.PASSED);
+          }
+          //Add Screenshots if exists
+          if (currentAssertion.screenshots && currentAssertion.screenshots.length > 0) {
+            //Add Screenshots as attachments
+            for (let index in currentAssertion.screenshots) {
+              const file = currentAssertion.screenshots[index];
+              const data = fs.readFileSync(file);
+              allure.attachment("Screenshot", data, ContentType.PNG);
+            }
           }
           //End Assertion
           assertion.endStep();
@@ -128,14 +128,14 @@ export class NightwatchAllureReporter {
       } else if (currentModule.assertionsCount === currentModule.failedCount) {
         //Failed step
         this.coreReporter.setTestStatus(Status.FAILED);
-        this.coreReporter.setTestDetailsTrace(currentModule.errmessages.join(","));
         failedCount++;
       } else {
         //Broken step
         this.coreReporter.setTestStatus(Status.BROKEN);
-        this.coreReporter.setTestDetailsTrace(currentModule.errmessages.join(","));
         partialCount++;
       }
+      if (currentModule.errmessages && currentModule.errmessages.length>0)
+        this.coreReporter.setTestDetailsTrace(currentModule.errmessages.join(","));
       this.coreReporter.completeTest();
       this.coreReporter.endSuite();
     }
