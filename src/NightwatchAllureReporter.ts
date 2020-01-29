@@ -14,7 +14,7 @@ export class NightwatchAllureReporter {
   private readonly sendData: boolean = false;
 
   constructor(opts: Models.NightwatchOptions) {
-    const folderName = opts.folder ? opts.folder : "allure-results";
+    const folderName = opts && opts.folder ? opts.folder : "allure-results";
     const allureConfig: IAllureConfig = { resultsDir: folderName };
     //Send Data param is to send a summary of results back as callback of reporter
     if (opts.sendData)
