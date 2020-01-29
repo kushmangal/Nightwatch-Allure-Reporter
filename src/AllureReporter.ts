@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import { NightwatchAllureInterface } from "./NightwatchAllureInterface";
 import * as Models from "./model";
-import { ContentType, Stage, Status, StatusDetails } from "./allure/model";
+import { ContentType, LabelName, Stage, Status, StatusDetails } from "./allure/model";
 import { AllureTest } from "./allure/AllureTest";
 import { AllureStep } from "./allure/ExecutableItemWrapper";
 import { AllureGroup } from "./allure/AllureGroup";
@@ -64,8 +64,15 @@ export class AllureReporter {
     this.currentTest = this.currentSuite.startTest(test.testName);
     this.currentTest.setEnd(test.timeMs);
     this.currentTest.fullName = test.testName;
+    //Adding date and reportPrefix as tags
+    const currentDate = new Date();
+    this.currentTest.addLabel(LabelName.TAG, "" + currentDate);
+    if (test.reportPrefix) {
+      this.currentTest.addLabel(LabelName.TAG, test.reportPrefix);
+      this.currentTest.addParameter('Machine', test.reportPrefix);
+    }
     this.currentTest.historyId = createHash("md5")
-      .update(test.testName)
+      .update(test.reportPrefix + test.testName)
       .digest("hex");
     this.currentTest.stage = Stage.RUNNING;
 

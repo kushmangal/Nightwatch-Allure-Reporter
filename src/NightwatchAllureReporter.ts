@@ -11,10 +11,12 @@ export let allure: NightwatchAllureInterface;
 
 export class NightwatchAllureReporter {
   private coreReporter: AllureReporter;
-  private sendData: boolean = false;
+  private readonly sendData: boolean = false;
 
   constructor(opts: Models.NightwatchOptions) {
-    const allureConfig: IAllureConfig = { resultsDir: "allure-results" };
+    const folderName = opts && opts.folder ? opts.folder : "allure-results";
+    const allureConfig: IAllureConfig = { resultsDir: folderName };
+    //Send Data param is to send a summary of results back as callback of reporter
     if (opts.sendData)
       this.sendData = true;
     this.coreReporter = new AllureReporter(new AllureRuntime(allureConfig));
@@ -32,6 +34,7 @@ export class NightwatchAllureReporter {
       testCount++;
       let currentModule = results.modules[currentModuleName];
       let currentTest: NightwatchTest = {
+        reportPrefix: currentModule.reportPrefix,
         failures: currentModule.failures,
         errors: currentModule.errors,
         skipped: currentModule.skipped.length,
@@ -58,14 +61,6 @@ export class NightwatchAllureReporter {
       //Starting test in the suite
       this.coreReporter.startCase(currentTest);
 
-      //TODO Check how to use this
-      // if (currentTest.tags.hasOwnProperty("testcaseId")) {
-      //     runtimeAllure.addLabel("testId", currentTest.tags["testcaseId"]);
-      // }
-      // if (currentTest.tags.hasOwnProperty("description")) {
-      //     runtimeAllure.description(currentTest.tags.description);
-      // }
-      //
 
       allure.attachment("Reported Result", JSON.stringify(currentModule), ContentType.JSON);
 
@@ -98,17 +93,17 @@ export class NightwatchAllureReporter {
           if (currentAssertion.failure) {
             assertion.setStatus(Status.FAILED);
             assertion.setDetailsTrace(currentAssertion.stackTrace);
-            if (currentAssertion.screenshots && currentAssertion.screenshots.length > 0) {
-              //Add Screenshots as attachments
-              for (let index in currentAssertion.screenshots) {
-                const file = currentAssertion.screenshots[index];
-                const data = fs.readFileSync(file);
-                allure.attachment("Screenshot", data, ContentType.PNG);
-              }
-            }
-            //TODO Add Screenshots
           } else {
             assertion.setStatus(Status.PASSED);
+          }
+          //Add Screenshots if exists
+          if (currentAssertion.screenshots && currentAssertion.screenshots.length > 0) {
+            //Add Screenshots as attachments
+            for (let index in currentAssertion.screenshots) {
+              const file = currentAssertion.screenshots[index];
+              const data = fs.readFileSync(file);
+              allure.attachment("Screenshot", data, ContentType.PNG);
+            }
           }
           //End Assertion
           assertion.endStep();
@@ -122,25 +117,25 @@ export class NightwatchAllureReporter {
         step.endStep();
       }
 
-      if (currentModule.assertionsCount === currentModule.passedCount) {
+      if (currentModule.assertionsCount!=0 && currentModule.assertionsCount === currentModule.passedCount) {
         //Passed step
         this.coreReporter.setTestStatus(Status.PASSED);
         passedCount++;
-      } else if (currentModule.assertionsCount === currentModule.skippedCount) {
+      } else if (currentModule.assertionsCount!=0 && currentModule.assertionsCount === currentModule.skippedCount) {
         //Skipped step
         this.coreReporter.setTestStatus(Status.SKIPPED);
         skippedCount++;
       } else if (currentModule.assertionsCount === currentModule.failedCount) {
         //Failed step
         this.coreReporter.setTestStatus(Status.FAILED);
-        this.coreReporter.setTestDetailsTrace(currentModule.errmessages.join(","));
         failedCount++;
       } else {
         //Broken step
         this.coreReporter.setTestStatus(Status.BROKEN);
-        this.coreReporter.setTestDetailsTrace(currentModule.errmessages.join(","));
         partialCount++;
       }
+      if (currentModule.errmessages && currentModule.errmessages.length>0)
+        this.coreReporter.setTestDetailsTrace(currentModule.errmessages.join(","));
       this.coreReporter.completeTest();
       this.coreReporter.endSuite();
     }

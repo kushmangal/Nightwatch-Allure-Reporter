@@ -20,3 +20,12 @@ To serve these results use allure reporter cli, for that first you would need to
 ```
 allure generate ./allure-results --clean && allure open
 ```
+
+##CHANGELOG
+7/1/2020 - 
+1. Added Report Prefix to Test Name
+2. Added Report Prefix and Date of report generation as tags to each test
+3. Adding screenshots if exists in all cases and err messages
+
+30/1/2020 - 
+1. Fixed error in issue #2
