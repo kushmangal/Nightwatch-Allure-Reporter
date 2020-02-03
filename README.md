@@ -9,9 +9,11 @@ This is a custom reporter for nightwatch, which uses allure reporting to generat
 Add following code to globals file in nightwatch
 ```
 const allureReporter = require('nightwatch-allure');
-const reporter = new allureReporter.NightwatchAllureReporter();
 module.exports = {
-  reporter: reporter.write
+  reporter: (results,done)=>{
+    const reporter = new allureReporter.NightwatchAllureReporter({});
+    reporter.write(results,done);
+  }
 };
 ```
 

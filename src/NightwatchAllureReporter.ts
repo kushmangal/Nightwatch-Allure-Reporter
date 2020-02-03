@@ -15,9 +15,10 @@ export class NightwatchAllureReporter {
 
   constructor(opts: Models.NightwatchOptions) {
     const folderName = opts && opts.folder ? opts.folder : "allure-results";
+    const sendData = opts && opts.sendData ? opts.sendData : false;
     const allureConfig: IAllureConfig = { resultsDir: folderName };
     //Send Data param is to send a summary of results back as callback of reporter
-    if (opts.sendData)
+    if (sendData)
       this.sendData = true;
     this.coreReporter = new AllureReporter(new AllureRuntime(allureConfig));
     allure = this.coreReporter.getInterface();
