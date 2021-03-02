@@ -1,3 +1,5 @@
+#This project is no longer being maintained
+
 #Nightwatch Allure Reporter
 This is a custom reporter for nightwatch, which uses allure reporting to generate reports.
 
